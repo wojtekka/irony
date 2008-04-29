@@ -1,0 +1,102 @@
+0	tv1
+1	tv2
+2	teletext
+3	video
+4	laserdisc player
+5	vcr1
+6	vcr2
+7
+8	sat1
+9	camera
+10	sat2
+11
+12	cd video
+13
+14	cd photo
+15
+16	preamp1
+17	tuner
+18	tape
+19	preamp2
+20	cd player
+21	phono
+22	audio satellite receiver
+23	dcc recorder
+24
+25
+26	cd recorder
+27
+28
+29	lighting
+30	lighting
+31	phone
+
+0	0
+1	1
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	-/--
+11
+12	standby
+13	mute
+14	normalize
+15
+16	vol+
+17	vol-
+18	bright+
+19	bright-
+20	sat+
+21	sat-
+22	bass+
+23	bass-
+24	treble+
+25	treble-
+26	balance+ right
+27	balance- left
+28
+29
+30
+31
+32	ch+
+33	ch-
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48	pause
+49
+50	rewind
+51
+52	ffwd
+53	play
+54	stop
+55	record
+56
+57
+58
+59
+60
+61
+62
+63
+
+
+src: http://www.ustr.net/infrared/infrared1.shtml
+src: http://www.sbprojects.com/knowledge/ir/rc5.htm
+src: http://users.pandora.be/davshomepage/rc5.htm

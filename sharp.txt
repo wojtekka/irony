@@ -1,0 +1,28 @@
+IR_CODE_SHARP_OLD
+Universal remote code 000231
+Address 0
+cmd=1 ch+
+cmd=2 ch-
+cmd=3 vol+
+cmd=4 vol-
+cmd=5 bright+
+cmd=6 bright-
+cmd=7 sat+
+cmd=8 sat-
+cmd=9 mute
+cmd=14 standby
+
+IR_CODE_SHARP
+Universal remote code 001001
+Address 1
+ch+ 17
+ch- 18
+vol+ 20
+vol- 21
+standby 22
+mute 23
+sat+ 36
+sat- 37
+bright+ 41
+bright- 42
+
