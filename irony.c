@@ -18,7 +18,7 @@
 int mouse;
 int delta;
 int repeat;
-int uifd;
+int uinput_fd;
 void *rc5;
 void *sirc;
 void *recs80;
@@ -46,52 +46,52 @@ void handle(ir_code_t *code)
 	}
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 12)
-		uinput_key_press(uifd, KEY_POWER, -1, -1);
+		uinput_key_press(uinput_fd, KEY_POWER, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 16)
-		uinput_key_press(uifd, KEY_VOLUMEUP, -1, -1);
+		uinput_key_press(uinput_fd, KEY_VOLUMEUP, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 17)
-		uinput_key_press(uifd, KEY_VOLUMEDOWN, -1, -1);
+		uinput_key_press(uinput_fd, KEY_VOLUMEDOWN, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 13)
-		uinput_key_press(uifd, KEY_MUTE, -1, -1);
+		uinput_key_press(uinput_fd, KEY_MUTE, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 30)
-		uinput_key_press(uifd, KEY_TAB, -1, -1);
+		uinput_key_press(uinput_fd, KEY_TAB, -1, -1);
 
 	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 16)
-		uinput_mouse_move(uifd, delta, 0, 0);
+		uinput_mouse_move(uinput_fd, delta, 0, 0);
 
 	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 17)
-		uinput_mouse_move(uifd, -delta, 0, 0);
+		uinput_mouse_move(uinput_fd, -delta, 0, 0);
 
 	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 33)
-		uinput_mouse_move(uifd, 0, delta, 0);
+		uinput_mouse_move(uinput_fd, 0, delta, 0);
 
 	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 32)
-		uinput_mouse_move(uifd, 0, -delta, 0);
+		uinput_mouse_move(uinput_fd, 0, -delta, 0);
 
 	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 43)
-		uinput_mouse_move(uifd, 0, 0, 1);
+		uinput_mouse_move(uinput_fd, 0, 0, 1);
 
 	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 44)
-		uinput_mouse_move(uifd, 0, 0, -1);
+		uinput_mouse_move(uinput_fd, 0, 0, -1);
 
 	if (!code->repeat && mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 59)
-		uinput_key_press(uifd, BTN_LEFT, -1, -1);
+		uinput_key_press(uinput_fd, BTN_LEFT, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 1)
-		uinput_key_press(uifd, KEY_PREVIOUSSONG, -1, -1);
+		uinput_key_press(uinput_fd, KEY_PREVIOUSSONG, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 2)
-		uinput_key_press(uifd, KEY_PLAYPAUSE, -1, -1);
+		uinput_key_press(uinput_fd, KEY_PLAYPAUSE, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 3)
-		uinput_key_press(uifd, KEY_NEXTSONG, -1, -1);
+		uinput_key_press(uinput_fd, KEY_NEXTSONG, -1, -1);
 
 	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 4)
-		uinput_key_press(uifd, KEY_ZOOM, -1, -1);
+		uinput_key_press(uinput_fd, KEY_ZOOM, -1, -1);
 
 	if (!code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 54) {
 		printf("mouse mode off\n");
@@ -104,22 +104,22 @@ void handle(ir_code_t *code)
 	}
 
 	if (code->type == IR_CODE_SIRC && code->address == 1 && code->command == 18)
-		uinput_mouse_move(uifd, delta, 0, 0);
+		uinput_mouse_move(uinput_fd, delta, 0, 0);
 
 	if (code->type == IR_CODE_SIRC && code->address == 1 && code->command == 19)
-		uinput_mouse_move(uifd, -delta, 0, 0);
+		uinput_mouse_move(uinput_fd, -delta, 0, 0);
 
 	if (code->type == IR_CODE_SIRC && code->address == 1 && code->command == 17)
-		uinput_mouse_move(uifd, 0, delta, 0);
+		uinput_mouse_move(uinput_fd, 0, delta, 0);
 
 	if (code->type == IR_CODE_SIRC && code->address == 1 && code->command == 16)
-		uinput_mouse_move(uifd, 0, -delta, 0);
+		uinput_mouse_move(uinput_fd, 0, -delta, 0);
 
 	if (!code->repeat && code->type == IR_CODE_SIRC && code->address == 1 && code->command == 20)
-		uinput_key_press(uifd, BTN_LEFT, -1, -1);
+		uinput_key_press(uinput_fd, BTN_LEFT, -1, -1);
 
 	if (!code->repeat && code->type == IR_CODE_SIRC && code->address == 1 && code->command == 21)
-		uinput_key_press(uifd, KEY_APOSTROPHE, KEY_RIGHTSHIFT, -1);
+		uinput_key_press(uinput_fd, KEY_APOSTROPHE, KEY_RIGHTSHIFT, -1);
 }
 
 void parse(struct timeval *ts, ir_event_t *queue, int queue_len)
@@ -151,23 +151,23 @@ void parse(struct timeval *ts, ir_event_t *queue, int queue_len)
 
 int main(void)
 {
-	int irfd;
+	int lirc_fd;
 	int flags;
 	int do_timeout = 0;
 	ir_event_t queue[128];	
 	int queue_len = 0;
 	struct timeval ts;
 
-	irfd = open("/dev/lirc0", O_RDONLY);
+	lirc_fd = open("/dev/lirc0", O_RDONLY);
 
-	if (irfd == -1) {
+	if (lirc_fd == -1) {
 		perror("/dev/lirc0");
 		exit(1);
 	}
 
-	uifd = uinput_open();
+	uinput_fd = uinput_open();
 
-	if (uifd == -1) {
+	if (uinput_fd == -1) {
 		perror("uinput");
 		exit(1);
 	}
@@ -194,18 +194,18 @@ int main(void)
 
 	/* Flush buffer */
 
-	flags = fcntl(irfd, F_GETFL);
+	flags = fcntl(lirc_fd, F_GETFL);
 
 	if (flags >= 0) {
-		if (fcntl(irfd, F_SETFL, flags | O_NONBLOCK) != -1) {
+		if (fcntl(lirc_fd, F_SETFL, flags | O_NONBLOCK) != -1) {
 			lirc_t data;
 
 			printf("Flushing\n");
 
-			while (read(irfd, &data, sizeof(data)) == sizeof(data))
+			while (read(lirc_fd, &data, sizeof(data)) == sizeof(data))
 				;
 
-			fcntl(irfd, F_SETFL, flags);
+			fcntl(lirc_fd, F_SETFL, flags);
 		}
 	}
 
@@ -216,12 +216,12 @@ int main(void)
 		fd_set rds;
 
 		FD_ZERO(&rds);
-		FD_SET(irfd, &rds);
+		FD_SET(lirc_fd, &rds);
 
 		tv.tv_sec = 0;
 		tv.tv_usec = 50000;
 		
-		result = select(irfd + 1, &rds, NULL, NULL, (do_timeout) ? &tv : NULL);
+		result = select(lirc_fd + 1, &rds, NULL, NULL, (do_timeout) ? &tv : NULL);
 
 		if (result == -1) {
 			if (errno == EINTR)
@@ -238,10 +238,10 @@ int main(void)
 			do_timeout = 0;
 		}
 
-		if (FD_ISSET(irfd, &rds)) {
+		if (FD_ISSET(lirc_fd, &rds)) {
 			int pulse, length;
 
-			if (read(irfd, &data, sizeof(data)) != sizeof(data))
+			if (read(lirc_fd, &data, sizeof(data)) != sizeof(data))
 				continue;
 
 			pulse = data & PULSE_BIT;
@@ -269,8 +269,8 @@ int main(void)
 		}
 	}
 
-	close(irfd);
-	uinput_close(uifd);
+	close(lirc_fd);
+	uinput_close(uinput_fd);
 	rc5_free(rc5);
 	sirc_free(sirc);
 	recs80_free(recs80);
