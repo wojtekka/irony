@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <stdio.h>
-#include "ir.h"
+#include "irony.h"
 #include "sirc.h"
 
 #define SIRC_START_WIDTH 2400

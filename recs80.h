@@ -1,7 +1,7 @@
 #ifndef RECS80_H
 #define RECS80_H
 
-#include "ir.h"
+#include "irony.h"
 
 void *recs80_new(void);
 void recs80_free(void *recs80);

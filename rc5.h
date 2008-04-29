@@ -1,7 +1,7 @@
 #ifndef RC5_H
 #define RC5_H
 
-#include "ir.h"
+#include "irony.h"
 
 void *rc5_new(void);
 void rc5_free(void *rc5);

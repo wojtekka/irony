@@ -1,7 +1,7 @@
 #ifndef SHARP_H
 #define SHARP_H
 
-#include "ir.h"
+#include "irony.h"
 
 void *sharp_new(void);
 void sharp_free(void *rc5);

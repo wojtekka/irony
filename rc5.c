@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ir.h"
+#include "irony.h"
 #include "rc5.h"
 
 #define RC5_BIT_WIDTH 1778

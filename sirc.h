@@ -1,7 +1,7 @@
 #ifndef SIRC_H
 #define SIRC_H
 
-#include "ir.h"
+#include "irony.h"
 
 void *sirc_new(void);
 void sirc_free(void *sirc);

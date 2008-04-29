@@ -34,7 +34,7 @@ int uinput_open(void)
 		return -1;
 
 	memset(&uud, 0, sizeof(uud));
-	strncpy(uud.name, "Foobar", UINPUT_MAX_NAME_SIZE);
+	strncpy(uud.name, "Irony", UINPUT_MAX_NAME_SIZE);
 	uud.id.version = 4;
 	uud.id.bustype = BUS_USB;
 

@@ -8,7 +8,7 @@
 #include <errno.h>
 #include "uinput.h"
 #include <linux/input.h>
-#include "ir.h"
+#include "irony.h"
 #include "lirc.h"
 #include "rc5.h"
 #include "sirc.h"

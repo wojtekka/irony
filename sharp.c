@@ -1,33 +1,7 @@
-/* old sharp protocol, addr always 0, code 000231
- * cmd=1 ch+
- * cmd=2 ch-
- * cmd=3 vol+
- * cmd=4 vol-
- * cmd=5 bright+
- * cmd=6 bright-
- * cmd=7 sat+
- * cmd=8 sat-
- * cmd=9 mute
- * cmd=14 standby
- */
-
-/* new sharp protocol, addr 1, code 001001
- * ch+ 17
- * ch- 18
- * vol+ 20
- * vol- 21
- * standby 22
- * mute 23
- * sat+ 36
- * sat- 37
- * bright+ 41
- * bright- 42
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ir.h"
+#include "irony.h"
 #include "sharp.h"
 
 #define SHARP_OLD_PULSE_WIDTH 500
