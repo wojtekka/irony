@@ -36,9 +36,6 @@ int rc5_parse(void *rc5_ptr, struct timeval *ts, ir_event_t *queue, int queue_le
 		ir_event_t *e = &queue[i];
 
 		if ((e->length > RC5_BIT_WIDTH * 0.25) && (e->length < RC5_BIT_WIDTH * 0.75)) {
-			if (index == 0 && half == 0)
-				return 0;
-
 			if (half) {
 				if (e->type == IR_EVENT_PULSE)
 					value |= 1 << (RC5_BIT_COUNT - index - 1);
@@ -46,14 +43,17 @@ int rc5_parse(void *rc5_ptr, struct timeval *ts, ir_event_t *queue, int queue_le
 			}
 			half = !half;
 		} else if ((e->length >= RC5_BIT_WIDTH * 0.75) && (e->length < RC5_BIT_WIDTH * 1.25)) {
-			if (index == 0 || !half)
+			if (!half) {
+//				printf("rc5: invalid %s %dus at %d.%d\n", (e->type == IR_EVENT_PULSE) ? "pulse" : "space", e->length, index, (half) ? 5 : 0);
 				return 0;
+			}
 	
 			if (e->type == IR_EVENT_PULSE)
 				value |= 1 << (RC5_BIT_COUNT - index - 1);
 	
 			index++;
 		} else {
+//			printf("rc5: invalid %s %dus at %d.%d\n", (e->type == IR_EVENT_PULSE) ? "pulse" : "space", e->length, index, (half) ? 5 : 0);
 			return 0;
 		}
 	}
@@ -64,6 +64,8 @@ int rc5_parse(void *rc5_ptr, struct timeval *ts, ir_event_t *queue, int queue_le
 	}
 
 	/* Verify the start bit. */
+
+//	printf("rc5: value = 0x%08x\n", value);
 
 	if (!(value & (1 << RC5_START_BIT)))
 		return 0;
