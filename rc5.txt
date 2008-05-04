@@ -97,6 +97,26 @@
 63
 
 
+cyfra+ (addr 10)
+----------------
+pilot	15
+progr	79
+up	80
+down	81
+left	85
+right	86
+ok	87
+0-9	0-9
+>o<	97
+o->	83
+serw	82
++	47
+menu	106
+a-e	107-111
+mute	70
+tv/sat	40
+standby	12
+
 src: http://www.ustr.net/infrared/infrared1.shtml
 src: http://www.sbprojects.com/knowledge/ir/rc5.htm
 src: http://users.pandora.be/davshomepage/rc5.htm
