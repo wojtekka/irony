@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <inttypes.h>
 #include <sys/select.h>
+#include <sys/wait.h>
+#include <string.h>
 #include <errno.h>
 #include "uinput.h"
 #include <linux/input.h>
@@ -15,7 +17,13 @@
 #include "recs80.h"
 #include "sharp.h"
 
-int mouse;
+enum {
+	MODE_DEFAULT,
+	MODE_MOUSE,
+	MODE_POWER
+};
+
+int mode;
 int delta;
 int repeat;
 int uinput_fd;
@@ -23,6 +31,59 @@ void *rc5;
 void *sirc;
 void *recs80;
 void *sharp;
+
+void run(const char *script, ir_code_t *code)
+{
+	char type[16], address[16], command[16];
+	int pid;
+
+	printf("run(\"%s\", ...)\n", script);
+
+	if (code != NULL) {
+		snprintf(type, sizeof(type), "%d", code->type);
+		snprintf(address, sizeof(address), "%d", code->address);
+		snprintf(command, sizeof(command), "%d", code->command);
+	}
+
+	pid = fork();
+
+	if (pid == -1) {
+		printf("fork() failed: %s\n", strerror(errno));
+		return;
+	}
+
+	if (pid == 0) {
+		if (code != NULL)
+			execlp(script, script, type, address, command, NULL);
+		else
+			execlp(script, script, NULL);
+
+		exit(1);
+	}
+}
+
+void acpi_fakekey(int key)
+{
+	char key_str[16];
+	int pid;
+
+	printf("acpi_fakekey(%d)\n", key);
+
+	snprintf(key_str, sizeof(key_str), "%d", key);
+
+	pid = fork();
+
+	if (pid == -1) {
+		printf("fork() failed: %s\n", strerror(errno));
+		return;
+	}
+
+	if (pid == 0) {
+		execlp("acpi_fakekey", "acpi_fakekey", key_str, NULL);
+
+		exit(1);
+	}
+}
 
 void handle(ir_code_t *code)
 {
@@ -45,62 +106,98 @@ void handle(ir_code_t *code)
 			delta = 64;
 	}
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 12)
-		uinput_key_press(uinput_fd, KEY_POWER, -1, -1);
+	if (mode != MODE_POWER && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 12) {
+		mode = MODE_POWER;
+		acpi_fakekey(KEY_POWER);
+		return;
+	}
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 16)
+	if (mode == MODE_POWER) {
+		if (!code->repeat) {
+			if (code->type == IR_CODE_RC5 && code->address == 0 && code->command == 12) {
+				uinput_key_press(uinput_fd, KEY_ENTER, -1, -1);
+			} else if (code->type == IR_CODE_RC5 && code->address == 0 && code->command == 30) {
+				uinput_key_press(uinput_fd, KEY_TAB, -1, -1);
+			} else {
+				uinput_key_press(uinput_fd, KEY_ESC, -1, -1);
+				mode = MODE_DEFAULT;
+			}
+		}
+
+		return;
+	}
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 38)
+		uinput_key_press(uinput_fd, KEY_ENTER, -1, -1);
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 16)
 		uinput_key_press(uinput_fd, KEY_VOLUMEUP, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 17)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 17)
 		uinput_key_press(uinput_fd, KEY_VOLUMEDOWN, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 13)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 32)
+		run("irony-ch-up.sh", code);
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 33)
+		run("irony-ch-down.sh", code);
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 63)
+		run("irony-tv.sh", code);
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 13)
 		uinput_key_press(uinput_fd, KEY_MUTE, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 30)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 30)
 		uinput_key_press(uinput_fd, KEY_TAB, -1, -1);
 
-	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 16)
+	if (mode == MODE_MOUSE && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 16)
 		uinput_mouse_move(uinput_fd, delta, 0, 0);
 
-	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 17)
+	if (mode == MODE_MOUSE && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 17)
 		uinput_mouse_move(uinput_fd, -delta, 0, 0);
 
-	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 33)
+	if (mode == MODE_MOUSE && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 33)
 		uinput_mouse_move(uinput_fd, 0, delta, 0);
 
-	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 32)
+	if (mode == MODE_MOUSE && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 32)
 		uinput_mouse_move(uinput_fd, 0, -delta, 0);
 
-	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 43)
+	if (mode == MODE_MOUSE && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 43)
 		uinput_mouse_move(uinput_fd, 0, 0, 1);
 
-	if (mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 44)
+	if (mode == MODE_MOUSE && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 44)
 		uinput_mouse_move(uinput_fd, 0, 0, -1);
 
-	if (!code->repeat && mouse && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 59)
+	if (mode == MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 59)
 		uinput_key_press(uinput_fd, BTN_LEFT, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 1)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 1)
 		uinput_key_press(uinput_fd, KEY_PREVIOUSSONG, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 2)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 2)
 		uinput_key_press(uinput_fd, KEY_PLAYPAUSE, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 3)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 3)
 		uinput_key_press(uinput_fd, KEY_NEXTSONG, -1, -1);
 
-	if (!mouse && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 4)
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 4)
 		uinput_key_press(uinput_fd, KEY_ZOOM, -1, -1);
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 34)
+		run("irony-pip.sh", code);
+
+	if (mode != MODE_MOUSE && !code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 52)
+		run("tvtime", NULL);
 
 	if (!code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 54) {
 		printf("mouse mode off\n");
-		mouse = 0;
+		mode = MODE_DEFAULT;
 	}
 
 	if (!code->repeat && code->type == IR_CODE_RC5 && code->address == 0 && code->command == 50) {
 		printf("mouse mode on\n");
-		mouse = 1;
+		mode = MODE_MOUSE;
 	}
 
 	if (code->type == IR_CODE_SIRC && code->address == 1 && code->command == 18)
@@ -117,9 +214,6 @@ void handle(ir_code_t *code)
 
 	if (!code->repeat && code->type == IR_CODE_SIRC && code->address == 1 && code->command == 20)
 		uinput_key_press(uinput_fd, BTN_LEFT, -1, -1);
-
-	if (!code->repeat && code->type == IR_CODE_SIRC && code->address == 1 && code->command == 21)
-		uinput_key_press(uinput_fd, KEY_APOSTROPHE, KEY_RIGHTSHIFT, -1);
 }
 
 void parse(struct timeval *ts, ir_event_t *queue, int queue_len)
@@ -220,6 +314,9 @@ int main(void)
 
 		tv.tv_sec = 0;
 		tv.tv_usec = 50000;
+
+		while (waitpid(-1, NULL, WNOHANG) > 0)
+			;
 		
 		result = select(lirc_fd + 1, &rds, NULL, NULL, (do_timeout) ? &tv : NULL);
 
